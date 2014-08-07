@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?><feed xmlns='http://www.w3.org/2005/Atom' xmlns:apps='http://schemas.google.com/apps/2006'>
+	<title>Mail Filters</title>
+	<id>tag:mail.google.com,2008:filters:1406166323544</id>
+	<updated>2014-07-24T01:50:14Z</updated>
+	<author>
+		<name>Forcefield Author</name>
+		<email>forcefield@localhost</email>
+	</author>
+	<entry>
+		<category term='filter'></category>
+		<title>Mail Filter</title>
+		<id>tag:mail.google.com,2008:filter:1406166323544</id>
+		<updated>2014-07-24T01:50:14Z</updated>
+		<content></content>
+		<apps:property name='hasTheWord' value='label:inbox'/>
+		<apps:property name='label' value='Forcefield'/>
+		<apps:property name='shouldMarkAsRead' value='true'/>
+		<apps:property name='shouldArchive' value='true'/>
+		<apps:property name='sizeOperator' value='s_sl'/>
+		<apps:property name='sizeUnit' value='s_sb'/>
+	</entry>
+</feed>

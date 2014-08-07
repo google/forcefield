@@ -1,3 +1,19 @@
+/*
+Copyright 2014 Google Inc. All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 /**********************
  Mail
 **********************/
@@ -24,72 +40,34 @@ function sendEmailToSelf(subject, body) {
   serviceSendEmail(yourEmailAddress, subject, body, options);
 }
 
-
-// returns true/false if the message was sent
-function sendMessage(message, metaObj)
-{
-  // Copies the given thread into another email
-  // sends that mail, archive the old thread, and remove the label.
-  var from_arr = serviceGetMessageFrom(message).split(' <');
-  
-  if (from_arr.length > 1) {
-    var name = from_arr[0];
-    var from = from_arr[1].replace('>','');
+function readSenderEmails() {
+  var sender_emails = serviceGetProperty('senderEmails');
+  if (sender_emails) {
+    sender_emails = JSON.parse(sender_emails);
   }
-  else {
-    var name = '';
-    var from = from_arr[0];
-  }
-   
-  var body = escapeHTMLChars(metaObj.newBody);
-  var cc = serviceGetMessageCC(message);
-  var bcc = serviceGetMessageBCC(message);
-  var to = serviceGetMessageTo(message);
-  var subject = serviceGetMessageSubject(message);
-  var attach = serviceGetMessageAttachments(message);
-    
-  // To we want to include HTML body in email?
-  var htmlBody = isMessageHTML(message) ? body : null;
-  
-  debug('== Sending mail ==');
-  debug('  To: ' + to);
-  debug('  Subject: ' + subject);
-  debug('  Body length: ' + body.length);
-  debug('  HTML body length: ' + (htmlBody == null ? 'Empty' : htmlBody.length));
-  debug('  CC: ' + cc);
-  debug('  BCC: ' + bcc);
-  debug('  From: ' + from);
-  debug('  Attachments length: ' + attach.length);
-  debug('  Name: ' + name);
-  debug('==================');
-  
-  serviceSendEmailMessage(to, subject, body, htmlBody, cc, bcc, from, attach, name);
-  
-  var log = '<table border="1">';
-  log += '<tr><th> Date Sent </th><th> To </th><th> CC </th><th> BCC </th><th> From </th><th> Subject </th><th> Body Snippit (first 500 chars) </th><th> Attachments </th></tr>';
-  log += '<tr>';
-  log += '<td style="vertical-align:text-top">' + dateToStringWithoutTimezone(getUserDate())
-  + '</td>';
-  log += '<td style="vertical-align:text-top">' + to + '</td>';
-  log += '<td style="vertical-align:text-top">' + cc + '</td>';
-  log += '<td style="vertical-align:text-top">' + bcc + '</td>';
-  log += '<td style="vertical-align:text-top">' + from + '</td>';
-  log += '<td style="vertical-align:text-top">' + subject + '</td>';
-  log += '<td style="vertical-align:text-top">' + body.substring(0,500) + '</td>';
-   
-  log += '<td style="vertical-align:text-top">';
-  
-  // Objects are in the form of blobs
-  for(var i=0; i<attach.length; i++)
-    log += ' ' + attach[i].getName() + '<br/>';
-  
-  log += '</td>';
-            
-  log += '</tr></table>';
-  
-  receipts.push(log);
-  
-  GmailApp.moveMessageToTrash(message);
+  sender_emails = sender_emails || [];
+  return sender_emails;
+}
 
-  return true;
+function addSenderEmail(email_address) {
+  var sender_emails = readSenderEmails();
+  sender_emails.push(email_address);
+  sender_emails = JSON.stringify(sender_emails);
+  serviceSetProperty('senderEmails', sender_emails);
+}
+  
+function senderEmailPresent(email_address) {
+  var sender_emails = readSenderEmails();
+  var present = sender_emails.indexOf(email_address) >= 0;
+  return present;
+}
+
+function sendAutoresponse(email_address) {
+  var subject = '[Forcefield] Delivery Notification';
+  var body = "Thanks for your note! My team has pledged to keep emails within working hours. I'm using Forcefield -- so your message will hit my inbox when my working hours resume.";
+  var options = {
+    htmlBody: "Thanks for your note! My team has pledged to keep emails within working hours. I'm using <a href='https://docs.google.com/a/google.com/document/d/12sA_S_WhktR9qMneDHB3yYB9QJXs_bkb0kLkcm5WkQ8/edit?usp=sharing'>Forcefield</a> -- so your message will hit my inbox when my working hours resume."
+  }
+  Logger.log('Sending autoresponse to ' + email_address);
+  serviceSendEmail(email_address, subject, body, options);
 }

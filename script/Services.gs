@@ -1,3 +1,19 @@
+/*
+Copyright 2014 Google Inc. All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 // Users have experienced issues connecting to GmailServices even with
 // the retry function below. Adding a very simple caching mechnaism to
 // help with the very commonly used items.
@@ -37,6 +53,10 @@ function cachedExecuteMessage(message, fp) {
 }
 
 // -- MESSAGE SERVICES --
+function serviceMarkMessagesUnread(messages) {
+  return executeCommand(function(){GmailApp.markMessagesUnread(messages);});
+}
+
 function serviceGetMessageID(message) {
   return executeCommand(function(){return message.getId();});
 }
@@ -73,6 +93,10 @@ function serviceGetMessageFrom(message) {
   return cachedExecuteMessage(message, function() { return message.getFrom(); } );
 }
 
+function serviceGetMessageReplyTo(message) {
+  return cachedExecuteMessage(message, function() { return message.getReplyTo(); } );
+}
+
 function serviceGetMessageCC(message) {
   return cachedExecuteMessage(message, function() { return message.getCc() });
 }
@@ -94,13 +118,32 @@ function serviceGmailSearch(search_string) {
   return executeCommand( function() { return GmailApp.search(search_string); } );
 }
 
+function serviceGetMessageById(message_id) {
+  return executeCommand( function() { return GmailApp.getMessageById(message_id); } );
+}
+
 function serviceCreateLabel(labelName) {
   return executeCommand( function() { return GmailApp.createLabel(labelName); } );
 }
 
-function serviceRemoveLabelFromThread(thread, label) {
-  var gmail_label_object = executeCommand(function(){return GmailApp.getUserLabelByName(label);}) // can use serviceGetUserLabels() instead
-  executeCommand(function(){thread.removeLabel(gmail_label_object)});
+function serviceRemoveLabelFromThreads(threads, label) {
+  return executeCommand( function() { return label.removeFromThreads(threads); } );
+}
+
+function serviceGetUserLabelByName(labelName) {
+  return executeCommand( function() { return GmailApp.getUserLabelByName(labelName); } );
+}
+
+function serviceMoveThreadToInbox(thread) {
+  return executeCommand(function() {
+    GmailApp.moveThreadToInbox(thread);
+  });
+}
+
+function serviceMoveThreadsToInbox(threads) {
+  return executeCommand(function() {
+    GmailApp.moveThreadsToInbox(threads);
+  });
 }
 
 function serviceSendEmailMessage(to, subject, body, htmlBody, cc, bcc, from, attach, name) {
@@ -112,10 +155,6 @@ function serviceSendEmailMessage(to, subject, body, htmlBody, cc, bcc, from, att
 
 function serviceGetUserLabels() {
   return cachedExecute(function() { return GmailApp.getUserLabels(); } );
-}
-
-function serviceCreateLabel(label) {
-  return executeCommand( function() { return GmailApp.createLabel(label); } );
 }
 
 
@@ -130,16 +169,28 @@ function serviceGetThreadMessages(thread) {
 
 
 // -- PROPERTIES SERVICE --
-function serviceSaveProperty(key, value) {
-  executeCommand(function() { UserProperties.setProperties(key, value) });
+function serviceSaveProperties(properties, deleteAllOthers) {
+  executeCommand(function() { PropertiesService.getUserProperties().setProperties(properties, deleteAllOthers) });
 }
 
 function serviceGetProperties() {
-  return executeCommand(function() { return UserProperties.getProperties(); });
+  return executeCommand(function() { return PropertiesService.getUserProperties().getProperties(); });
+}
+
+function serviceGetProperty(property) {
+  return executeCommand(function() { return PropertiesService.getUserProperties().getProperty(property); });
+}
+
+function serviceSetProperty(key, value) {
+  return executeCommand(function() { return PropertiesService.getUserProperties().setProperty(key, value); });
 }
 
 function serviceClearProperties() {
-  return executeCommand(function() { UserProperties.deleteAllProperties(); });
+  return executeCommand(function() { return PropertiesService.getUserProperties().deleteAllProperties(); });
+}
+
+function serviceDeleteProperty(key) {
+  return executeCommand(function() { return PropertiesService.getUserProperties().deleteProperty(key); });
 }
 
 // -- SCRIPT SERVICES --

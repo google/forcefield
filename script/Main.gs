@@ -1,9 +1,27 @@
+/*
+Copyright 2014 Google Inc. All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 /**********************
  Main Code
 **********************/
+START_TIME = 0;
 // Function called on event timer
 function main() {
   debug('Starting main()');
+  START_TIME = new Date().getTime();
   
   // Print the prefs that we're running with.
   var prefs = getUserPrefs();
@@ -11,20 +29,29 @@ function main() {
   
   // User has to have 'Error Notifications' turned on to get notified of top level exceptions.
   try {
-  
-    // Try to create the labels that we need, if failure then return.
-    if(!createLabels())
-      return 'Error creating labels!';
-    
-    // Found the label, lets see if anything is in it
-    var threads = getThreadsInLabel();
-    
-    if(threads.length > 0) {
-      debug('Found ' + threads.length + ' threads to process');
-      processThreads(threads);
+    if (timeToMoveThreads()) {
+      // Clear our list of previously autoresponded email addresses
+      serviceDeleteProperty('senderEmails');
+      
+      // Found the label, let's see if anything is in it
+      var threads = getThreadsInLabel();
+      
+      if(threads.length > 0) {
+        debug('Found ' + threads.length + ' threads to process.');
+        processThreads(threads);
+        if (outOfTime()) {
+          debug('Running out of time, halting.');
+        }
+      }
+      else {
+        debug('No threads found to process...exiting.');
+      }
+    } else {
+      if (prefs.autoresponderOn()) {
+        debug('Check for any autoresponses that need to be sent.');
+        sendAutoresponsesForNewMessages();
+      }
     }
-    else
-      debug('No threads found to process.. exiting');
   }
   catch(err) {
     if (err.hasOwnProperty('stack'))
@@ -38,170 +65,83 @@ function main() {
   return 'Finished!';
 }
 
-function ThreadMetaData()
-{
-  this.originalBody;      /* The original body of the message */
-  this.newBody;           /* Body after we have removed date data */
-  this.found_delim;       /* Boolean, if the message contains the delimeter (eg. we tried to parse the message) */
-  this.successful_parse;  /* Boolean, if we were able to successfully parse the message */
-  this.sendDate;          /* Date object when we should actually send this message */
-  this.error_msg;         /* The error message (if !valid) why this thread is NOT valid */
-}
 
-/* Return a completed ThreadMetaData object for this message */
-function parseMessage(message) {
-  var prefs = getUserPrefs();
-  var message_date_user_timezone = convertToUserDate(serviceGetMessageDate(message));
-  var metaData = new ThreadMetaData();
-    
-  var message_date_and_new_body_arr = getMessageDateAndNewBody(message);
-  var date_line = message_date_and_new_body_arr[0];
-  var message_new_body = message_date_and_new_body_arr[1];
-  
-  if(!date_line) {
-    metaData.found_delim = false;
-    metaData.successful_parse = false;
-    metaData.error_msg = 'Could not find your special character: "' + prefs.getDelim() + '" in FIRST line of email body';
-  }
-  else {
-    // We successfully found the delimeter
-    metaData.found_delim = true;
-
-    debug('Date String: ' + date_line + ' Timestamp on message: ' + dateToStringWithoutTimezone(message_date_user_timezone));
-    
-    Date.setRelativeTo(message_date_user_timezone);
-    
-    metaData.sendDate = parseDate(date_line);
- 
-    // We could not parse the data successfully
-    if(metaData.sendDate == null) {
-      debug('Error Parsing date string: ' + date_line);
-      metaData.error_msg = 'Error parsing date string: ' + date_line;
-      metaData.successful_parse = false;
-    }
-    else {
-      // Success parsing
-      debug('Date to send: ' + dateToStringWithoutTimezone(metaData.sendDate));
-      metaData.originalBody = serviceGetMessageBody(message);
-      metaData.successful_parse = true;
-      metaData.newBody = message_new_body;
-      metaData.error_msg = null;
-    }
-  }
-  return metaData;
-}
-
-
-function timeToSendMessage(messageSendDate) {
-  // Message time is in user timezone
-  var message_time = messageSendDate.getTime();
-
+function timeToMoveThreads() {
   // User date is in their timezone
   var user_time = getUserDate();
-  
-  // Add a 5 second fudge factor
-  var send_time = user_time.getTime() + 5 * 1000;
-  
-  var timeToSend = message_time <= send_time;
-  
-  debug('Message date ms: ' + message_time + ' + Current time ms:' + send_time);
-  
-  debug('Detected time to send message: ' + timeToSend + '. Send Date: ' + dateToStringWithoutTimezone(messageSendDate) + ' Current user date:' + dateToStringWithoutTimezone(user_time));
-   
-  return timeToSend;
-}
+  debug('Current user time:' + user_time);
+  var day_of_week = user_time.getDay();
+  var hour = user_time.getHours();
+  debug('Current day is ' + day_of_week + ' and current hour is ' + hour);
 
-
-function handleMalformedMessage(message, metaObj) { 
-  var process_message_as_error = false;
   var prefs = getUserPrefs();
-      
-  // If we are using a label then any malformed email is an error
-  if(prefs.getRequireLabel()) {
-    debug('Processing message as error because user requires a label');
-    process_message_as_error = true;   
-  }
-  // If we don't have a label, then only if the delim was found is the message considered an error
-  // (b/c a malformed date string)
-  else if(metaObj.found_delim && !metaObj.successful_parse) {
-    debug('Processing message as error because found delimeter in message, but could not parse it successfuly');
-    process_message_as_error = true;    
-  }
-
-  if(process_message_as_error) {
-    if(applyErrorLabel(message))
-      parsing_errors.push('Sorry! There was an error parsing your message with subject: "' + message.getSubject() + '". <br/> ' +
-                          'The reason for this error was: "' + metaObj.error_msg + '". <br/>' +
-                          'A new label was applied to this message:' + 
-                          '<a href="https://mail.google.com/mail/?#label/' + prefs.getErrorLabelName() + '">' + prefs.getErrorLabelName() + '</a>. <br/>' +
-                          'Gmail Delay Send will ignore this message until you fix the problem and remove that label. <br/>' +
-                          'If you have any questions please see the page on <a href="https://code.google.com/p/gmail-delay-send/wiki/GmailDelaySendErrors_8">common problems</a>');
-    
-    else
-      parsing_errors.push('There was a problem with a message and we tried to apply the error label, but that was un-successful also. It is not a good day  :-(');
-  }
-}
-
-
-function tryParseMessage(message) {
-  var metaObj = parseMessage(message);
+  var start_hour = prefs.getStartHour(day_of_week);
+  var end_hour = prefs.getEndHour(day_of_week);
+  debug('Using start hour ' + start_hour + ' and end hour ' + end_hour);
   
-  if(!metaObj.found_delim || !metaObj.successful_parse) {
-    debug('The message was malformed in some way. Found delimeter:' + metaObj.found_delim + '. Successful date parse: ' + metaObj.successful_parse);
-    handleMalformedMessage(message, metaObj);
-    return null;
+  if (hour >= start_hour && hour < end_hour) {
+    debug('Time to move threads');
+    return true;
   }
-  else  
-    return metaObj;
-}
-  
-
-function tryToSendMessage(metaObj, message) {
-  if(!timeToSendMessage(metaObj.sendDate) || !sendMessage(message, metaObj))
-    return false;
-  return true;
+  debug('Not time to move threads');  
+  return false;
 }
 
-/* Check and send an individual thread if it's time */
-function processThread(thread)
-{
-  var removeLabel = true;
-  var prefs = getUserPrefs();
-  var label = prefs.getToSendLabelName();
-  var messages = serviceGetThreadMessages(thread);
 
-  for(var i=0; i<messages.length; i++) {
-    var message = messages[i];
+function outOfTime() {
+  // Returns true if we're about out of time, or false otherwise.
+  return ((new Date().getTime() - START_TIME) / 1000) > 50;
+}
 
-    if(!serviceGetMessageIsDraft(message))
-      continue;
-    
-    if(serviceGetMessageIsTrash(message))
-      continue;
-      
-    var metaObj = tryParseMessage(message);
-    
-    // Message was malformed
-    if(metaObj == null)
-      continue;
-    
-    if(!tryToSendMessage(metaObj, message)) {
-      debug('Message was parsed successfully, but no email was sent. Do not remove label.');
-      removeLabel = false;
+
+function markMessagesInLabelUnread() {
+  // We only want to get the messages that have been marked read to mark unread.
+  var message_ids = getMessageIDsInLabel(true);
+  var messages = [];
+  for (var i=0; i<message_ids.length; i++) {
+    if (outOfTime()) {
+      return;
+    }
+    // Batch messages so we can mark them unread 10 at a time, to make the script run faster.
+    messages.push(serviceGetMessageById(message_ids[i]));
+    if (messages.length >= 10) {
+      serviceMarkMessagesUnread(messages);
+      messages = [];
     }
   }
-  
-  if(!prefs.getRequireLabel()) {
-    debug('Because we are not using a label, skipping the removal process');
+  // Take care of any remaining messages
+  if (messages.length > 0) {
+    serviceMarkMessagesUnread(messages);
   }
-  else if(removeLabel) {
-    debug('Removing label');
-    serviceRemoveLabelFromThread(thread, label);
+}
+  
+function sendAutoresponsesForNewMessages() {
+  var message_ids = getMessageIDsInLabel();
+  var message;
+  var sender;
+  for (var i=0; i<message_ids.length; i++) {
+    message = serviceGetMessageById(message_ids[i]);
+    sender = serviceGetMessageReplyTo(message);
+    if (!senderEmailPresent(sender)) {
+      addSenderEmail(sender);
+      sendAutoresponse(sender);
+    }
   }
 }
 
-function processThreads(threads)
-{
-  for(var i=0; i<threads.length; i++)
-    processThread(threads[i]);
+
+function processThreads(threads) {
+  markMessagesInLabelUnread();
+  if (outOfTime()) {
+    return;
+  }
+  serviceMoveThreadsToInbox(threads);
+  if (outOfTime()) {
+    return;
+  }
+  var prefs = getUserPrefs();
+  var label_name = prefs.getLabelName();
+  var label = serviceGetUserLabelByName(label_name);
+  serviceRemoveLabelFromThreads(threads, label);
 }
+

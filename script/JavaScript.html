@@ -1,0 +1,118 @@
+<!--
+Copyright 2014 Google Inc. All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<script>
+function showAlert(message) {
+  showLoadingMessage(false);
+  alert(''+message);
+}
+
+function showError(error) {
+  showLoadingMessage(false);
+  alert('ERROR:' + error.message);
+}
+
+function getHandlers() {
+  return google.script.run.withSuccessHandler(showAlert).withFailureHandler(showError);
+}
+
+function getHandlersAndHidePrefs() {
+  showLoadingMessage(true);
+  return getHandlers();
+}
+
+function runOnce() {
+  showLoadingMessage(true);
+  debug('Starting main');
+  getHandlers().main();
+}
+
+function restorePrefsHandler(prefs_object) {
+  debug('Restoring preferences');
+
+  for (var id_name in prefs_object) {
+    // First try to find element with the name, if so it's a text box so set value
+    var element = document.getElementById(id_name);
+
+    if (element) {
+      debug('    Found as a text box. id:' + element.id + ' value: ' + prefs_object[id_name]);
+      element.value = prefs_object[id_name];
+      $(element).change(); // Want to make the change event fire so that we can disable end times if needed (for start time set to "never")
+      continue;
+    }
+
+    // If that fails, try to find element with name + value, which means its a checkbox
+    // to set .checked to true
+    element = document.getElementById(id_name + '_' + prefs_object[id_name]);
+
+    if (element)  {
+      debug('    Found as a checked box. id:' + element.id + ' value: checked');
+      element.checked = true
+      continue;
+    }
+    warn('Could not find element with name: ' + id_name);
+  }
+
+  showLoadingMessage(false);
+}
+
+function showLoadingMessage(show) {
+  if(!show) {
+    $('#status').hide();
+    $('#prefs_form').show();
+  } else {
+    $('#status').show();
+    $('#prefs_form').hide();
+  }
+}
+
+function showAdvancedSettings() {
+
+}
+
+function init() {
+  debug('Starting init');
+  google.script.run.withSuccessHandler(restorePrefsHandler).withFailureHandler(showError).getPrefs();
+}
+
+function debug(msg) {
+  console.log(msg);
+}
+
+function warn(msg) {
+  console.warn(msg);
+}
+
+function error(msg) {
+  console.error(msg);
+}
+
+$(function() {
+  $("#hour-boundaries tbody select[id^='start_hour']").change(function(e) {
+    var el_id = $(this).attr('id');
+    var day_num = /\d+/.exec(el_id)[0];
+    var end_id = '#end_hour_' + day_num;
+    $(end_id).prop('disabled', $(this).val() == '99');    
+  });
+  
+  init();
+  
+  $('#show-advanced').click(function() {
+    $(this).hide();
+    $('#advanced-settings').show();
+    $('#testing-resources').show();
+  });
+});
+</script>
