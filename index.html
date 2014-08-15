@@ -20,48 +20,63 @@
 
           <h1 id="project_title">Forcefield</h1>
           <h2 id="project_tagline"></h2>
-
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/google/forcefield/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/google/forcefield/tarball/master">Download this project as a tar.gz file</a>
-            </section>
         </header>
     </div>
 
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+        <h3>Leave work at work.</h3>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<p>Forcefield is an add-on for Gmail that helps you stop checking your work email when you go home. Outside of work hours, any email you receive will stay out of your inbox. Your phone won't buzz, and your unread count won't go up.</p>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
+<p>When work hours start again, all of the accumulated mail will get delivered to your inbox.<p>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<p>The result? You can stop feeling pressure to respond to late-night work emails.</p>
 
-<h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+<h3>How it works</h3>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+<p>Forcefield uses <a href="https://developers.google.com/apps-script/">Google Apps Script</a>. Apps Script lets developers write scripts that run right on Google's servers and interact with Google products, like Gmail.</p>
 
-<h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
+<p>When you start using Forcefield, you install a filter in Gmail that moves all of your incoming mail to a folder in Gmail and marks it read. Forcefield checks for new mail once a minute, and if it's during business hours, it moves the mail back to your inbox and marks it unread.</p>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<h3>Setting up Forcefield</h3>
 
-<h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+<p>There are two parts to Forcefield: the script itself, and a filter for Gmail.</p>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<h4>Setting up the Forcefield script</h4>
 
-<h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
+<p>Currently, the only way to run Forcefield is to create your own copy of the script first. This is a slightly cumbersome option, and hopefully a better option will be available soon. But for now, follow these steps:</p>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+<ol>
+  <li>Go to <a href="https://script.google.com/d/1QGyB6Q-JXhgWGdxJaEMPvavtj7y0DvDPemi_xyT1dSt_50nHLUu5Z66s/edit?usp=sharing">this link</a> to view the current version of Forcefield in the Apps Script editor.</li>
+  <li>To get your own copy, go to the File menu (in Apps Script, not your browser), and choose "Make a copy." This will save a copy to your Google Drive.</li>
+  <li>From within Google Drive, open your copy.</li>
+  <li>In the Apps Script editor, with your copy of Forcefield open, go to the Resources menu and choose "Advanced Google services."</li>
+  <li>In the menu that pops up, click on "Google Developers Console."</li>
+  <li>Find the option that says "Gmail API" and toggle it to "on".</li>
+  <li>Go back to the Apps Script editor and click the Publish menu and choose "Deploy as web app."</li>
+  <li>Under "Execute the app as," choose "User accessing the web app."</li>
+  <li>Click "Update."</li>
+  <li>You will see a box saying your web app is now deployed, along with a URL. Copy the URL underneath the text that says "Current web app URL," and paste it into a new browser tab.</li>
+  <li>This will take you to the preferences page for Forcefield. Choose the hours you want to receive mail, and click "Save Preferences" at the bottom.</li>
+  <li>That's it for the script! Again, we'll have an easier way to get started using Forcefield soon.</li>
+</ol>
+
+<h4>Setting up the filter</h4>
+
+<ol>
+  <li>Right click on <a href="https://raw.githubusercontent.com/google/forcefield/master/ForcefieldFilter.xml">this link</a> and choose "Save link as" to save the page.</li>
+  <li>In Gmail, go to Settings -&gt; Filters, scroll to the bottom, and click "Import filters."</li>
+  <li>Click "Choose File" and choose the file you just downloaded (ForcefieldFilter.xml).</li>
+  <li>Click "Open file."</li>
+  <li>Click "Create filters," and the filter will be installed.</li>
+</ol>
+
+<p>Note: if you're a power user and set up your own filters, you'll want to make sure that this filter stays at the bottom of your filter list. Otherwise, it could interfere with other filters that come later (particularly other ones that delete messages or cause them to skip the inbox).</p>
+
+<p>You're all set! If you ever need to cheat, you can peek in your Forcefield folder in Gmail, but that kind of defeats the purpose. (And by the way, any mail you read while it's in Forcefield will still get marked unread again when your work hours start again.)</p>
+
       </section>
     </div>
 
@@ -72,8 +87,6 @@ $ git checkout gh-pages
         <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
-
-    
 
   </body>
 </html>
