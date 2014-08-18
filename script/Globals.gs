@@ -22,7 +22,7 @@ var SCRIPT_VERSION = 0.1;
 // Top level label name
 var TOP_LEVEL_LABEL = 'Forcefield';
 
-// Use default google calendar to determine user timezone
+// Use default Google calendar to determine user timezone
 var DEFAULT_TIMEZONE = 'default';
 
 // Array of notifications  
@@ -31,7 +31,7 @@ var receipts = [];
 // Global preferences object
 var USER_PREFS = null;
 
-// Sent to user if not empty and 'Error Notifictions' is turned on.
+// Sent to user if not empty and 'Error Notifications' is turned on.
 var error_msgs = [];
 
 var EXECUTE_COMMAND_LOGGING = false;
@@ -42,7 +42,7 @@ var NUM_RETRIES = 10;
 // In milliseconds
 var SLEEP_TIME = 1500;
 
-var SCRIPT_NAME = "Gmail Forcefield";
+var SCRIPT_NAME = "Forcefield";
 
 var TRIGGER_FUNCTION="main";
 var TRIGGER_MINUTE_TIMER=1;
