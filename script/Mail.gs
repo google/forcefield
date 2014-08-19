@@ -30,8 +30,7 @@ function sendEmailToSelf(subject, body) {
   body += '<br/>';
   body += '<hr/>';
   body += '<table width="600" style="width:600px" cellspacing="0" cellpadding="0" align="center">';
-  body += '<tr style="font-size:' + email_footer_text_size +'px;"> <a href="http://code.google.com/p/gmail-delay-send"> ' + SCRIPT_NAME + ' Homepage </a>';
-  body += '|| <a href="https://code.google.com/p/gmail-delay-send/wiki/GmailDelaySendErrors_8"> Common Problems </a>';
+  body += '<tr style="font-size:' + email_footer_text_size +'px;"> <a href="https://google.github.io/forcefield/"> ' + SCRIPT_NAME + ' Homepage </a>';
   body += '|| Script Version: ' + SCRIPT_VERSION + ' </tr>';
   body += '</table>';
   
@@ -66,7 +65,7 @@ function sendAutoresponse(email_address) {
   var subject = '[Forcefield] Delivery Notification';
   var body = "Thanks for your note! My team has pledged to keep emails within working hours. I'm using Forcefield -- so your message will hit my inbox when my working hours resume.";
   var options = {
-    htmlBody: "Thanks for your note! My team has pledged to keep emails within working hours. I'm using <a href='https://docs.google.com/a/google.com/document/d/12sA_S_WhktR9qMneDHB3yYB9QJXs_bkb0kLkcm5WkQ8/edit?usp=sharing'>Forcefield</a> -- so your message will hit my inbox when my working hours resume."
+    htmlBody: "Thanks for your note! My team has pledged to keep emails within working hours. I'm using <a href='https://google.github.io/forcefield/'>Forcefield</a> -- so your message will hit my inbox when my working hours resume."
   }
   Logger.log('Sending autoresponse to ' + email_address);
   serviceSendEmail(email_address, subject, body, options);

@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 // Users have experienced issues connecting to GmailServices even with
-// the retry function below. Adding a very simple caching mechnaism to
+// the retry function below. Adding a very simple caching mechanism to
 // help with the very commonly used items.
 SERVICE_CACHE = {};
 
@@ -146,13 +146,6 @@ function serviceMoveThreadsToInbox(threads) {
   });
 }
 
-function serviceSendEmailMessage(to, subject, body, htmlBody, cc, bcc, from, attach, name) {
-  return executeCommand( 
-    function() {
-      GmailApp.sendEmail(to, subject, body, {htmlBody: htmlBody, cc: cc, bcc: bcc, from: from, attachments: attach, name: name} );
-    });
-}
-
 function serviceGetUserLabels() {
   return cachedExecute(function() { return GmailApp.getUserLabels(); } );
 }
@@ -251,9 +244,11 @@ function executeCommand(fp) {
     debug('<<<<<<<<<\n');
   
   if(retries == 0) {
-    msg = 'Gmail Delay Send failed to connect to one of the Google Services. ';
-    msg += 'This is OK if it happens infrequently,  the script will run again in a few minutes. ';
-    msg += 'See here to avoid receiving these notifications: https://code.google.com/p/gmail-delay-send/wiki/GmailDelaySendOptions_8#Error_Notifications. ';
+    msg = 'Forcefield failed to connect to one of the Google Services. ';
+    msg += 'This is OK if it happens infrequently, the script will run again in a minute. ';
+    msg += 'If it happens frequently, please post on our message board: ';
+    msg += 'https://groups.google.com/forum/#!forum/forcefield-apps-script\n'
+    msg += 'See here to avoid receiving these notifications: https://google.github.io/forcefield/error-notifications/\n';
     msg += 'Function being called: ' + fp + '.';
     msg += 'Error message: ' + last_error;
     debug(msg);
