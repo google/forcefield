@@ -16,3 +16,4 @@ layout: default
 1. You will see a box saying your web app is now deployed, along with a URL. Copy the URL underneath the text that says "Current web app URL," and paste it into a new browser tab.
 1. This will take you to the preferences page for Forcefield. Choose the hours you want to receive mail, and click "Save Preferences" at the bottom.
 
+Make sure you installed the filter, too, as described in the [instructions for general setup](/forcefield/).

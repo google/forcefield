@@ -22,3 +22,5 @@ Of course, you can always work with your files using git like normal, but if you
 If you refresh your Eclipse project, you should see all the Forcefield files show up, and if you refresh your browser they should likewise show up in your previously-empty Apps Script project.
 
 Now changes you make in Eclipse will get synced to the copy of your Apps Script project online as well as to your local clone of the Forcefield repository.
+
+To get your new Apps Script project up and running, see the procedure outlined in [setting up your own copy](../own-copy/); you can skip the first few steps that mention how to create the Apps Script project.
