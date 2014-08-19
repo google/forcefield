@@ -269,6 +269,32 @@ Full-Width Styles
   margin: 0 auto;
 }
 
+.nav {
+  background: white;
+  height: 80px;
+  right: 0;
+  left: 0;
+}
+
+.nav nav {
+  height: 80px;
+  padding: 12px 0px 22px 30px;
+}
+
+.nav a {
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 110%;
+  display: inline-block;
+  color: black;
+  margin: 14px;
+  transition: color 0.2s ease;
+}
+
+.nav a:hover {
+  color: #0090ff;
+}
+
 #forkme_banner {
   display: block;
   position: absolute;
@@ -294,7 +320,7 @@ Full-Width Styles
 }
 
 #header_wrap .inner {
-  padding: 50px 10px 30px 10px;
+  padding: 40px 10px 40px 10px;
 }
 
 #project_title {
