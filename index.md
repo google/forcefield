@@ -24,7 +24,7 @@ There are two parts to Forcefield: the script itself, and a filter for Gmail.
 
 1. Go to [the Forcefield preferences page](https://script.google.com/macros/s/AKfycbyuR18yqYaULKcSN8dV0D77OLW24KzHBjZIqENeSMjb-PAGmYE/exec).
 1. You will see a message saying "This app needs authorization to run." Click "Continue."
-1. Read through the list of permissions and click "Accept" if you agree with them. (If you have questions about the permissions Forcefield needs, see [the FAQ](/faq/).)
+1. Read through the list of permissions and click "Accept" if you agree with them. (If you have questions about the permissions Forcefield needs, see [the FAQ](/forcefield/faq/).)
 1. Choose the hours you want to receive mail, and click "Save Preferences" at the bottom. (This is very important: if you don't click "Save Preferences," the script won't finish installing!)
 
 #### Setting up the filter

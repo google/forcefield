@@ -3,12 +3,12 @@ layout: default
 ---
 ## Can I run my own copy of Forcefield?
 
-Of course! Just follow the instructions for [setting up your own copy](/own-copy/).
+Of course! Just follow the instructions for [setting up your own copy](../own-copy/).
 
 
 ## Why do you need these permissions?
 
-First of all, if you're concerned by the permissions Forcefield needs, you can always [set up your own copy](/own-copy/).
+First of all, if you're concerned by the permissions Forcefield needs, you can always [set up your own copy](../own-copy/).
 
 If you're just curious, here's what each permission is used for:
 
@@ -42,4 +42,4 @@ Used to send email notifications, if you enable debugging.
 
 ###### Connect to an external service
 
-Some functionality that Forcefield needs isn't currently available through the Apps Script APIs, so Forcefield also uses the [Gmail API](https://developers.google.com/gmail/api/) directly. It does this by connecting to the public endpoints just like a generic web service, which is what prompts this warning. (The Gmail API is relatively new, as it was announced at Google I/O 2014; if it gets included in Apps Script, then this permission will no longer be necessary.)
+Some functionality that Forcefield needs isn't currently available through the Apps Script APIs, so Forcefield also uses the [Gmail API](https://developers.google.com/gmail/api/) directly. It does this by connecting to the public endpoints just like a generic web service, which is what prompts this warning.
